@@ -4,21 +4,20 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.mandatoryassignment.model.PersonsViewModel
+import com.example.mandatoryassignment.screens.CreateFriend
 import com.example.mandatoryassignment.screens.ListViewScreen
+import com.example.mandatoryassignment.screens.LogIn
 import com.example.mandatoryassignment.ui.theme.MandatoryAssignmentTheme
+
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -36,18 +35,44 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun MainScreen(modifier: Modifier = Modifier) {
     val navController = rememberNavController()
-    val viewmodel : PersonsViewModel = viewModel()
-    val persons = viewmodel.persons.value
-    val errorMessage = viewmodel.errorMessage.value
+    val personViewmodel : PersonsViewModel = viewModel()
+    val persons = personViewmodel.persons.value
+    val errorMessage = personViewmodel.errorMessage.value
+    val authViewModel: AuthenticationViewModel = viewModel()
+    val user = authViewModel.user
+    if(user != null){
+        personViewmodel.getPersons(user.email!!)
+    }
 
-    NavHost(navController = navController, startDestination = NavRoutes.ListViewScreen.route) {
+    NavHost(navController = navController, startDestination = NavRoutes.LogInScreen.route) {
 
         composable(NavRoutes.ListViewScreen.route) {
             ListViewScreen(
-                persons = persons
-            )
+                persons = persons,
+                user = authViewModel.user,
+                signOut = authViewModel::signOut,
+                navigateToLogIn = { navController.navigate(NavRoutes.LogInScreen.route) }
 
+            )
         }
+
+        composable(NavRoutes.LogInScreen.route) {
+            LogIn(
+                user = authViewModel.user,
+                message = authViewModel.message,
+                signIn = authViewModel::signIn,
+                register = authViewModel::register,
+                navigateToNextScreen = { navController.navigate(NavRoutes.ListViewScreen.route) }
+            )
+        }
+
+        composable(NavRoutes.CreateFriendScreen.route) {
+            CreateFriend(
+                //user
+            )
+        }
+
+
     }
 
 }

@@ -8,9 +8,10 @@ import retrofit2.http.*
 
 
 interface PersonsService {
-    @GET("Persons?user_id={userId}")
-    fun getPersons(@Path("userId") userId: String): Call<List<Person>>
+//    @GET("Persons?user_id={userId}")
+//    fun getPersons(@Query("userId") userId: String): Call<List<Person>>
+
 
     @GET("Persons")
-    fun getAllPersons(): Call<List<Person>>
+    fun getPersons(@Query("user_id") userId: String? = null): Call<List<Person>>
 }

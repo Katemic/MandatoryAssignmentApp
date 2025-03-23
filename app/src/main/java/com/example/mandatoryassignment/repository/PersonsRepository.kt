@@ -30,26 +30,7 @@ class PersonsRepository {
     }
 
 
-//    fun getPersons(userId: String) {
-//        personsService.getPersons(userId).enqueue(object : Callback<List<Person>>{
-//            override fun onResponse(call: Call<List<Person>>, response: Response<List<Person>>){
-//                if (response.isSuccessful){
-//                    val personList: List<Person>? = response.body()
-//                    persons.value = personList ?: emptyList()
-//                    errorMessage.value = ""
-//                }
-//                else {
-//                    val message = response.code().toString() + " " + response.message()
-//                    errorMessage.value = message
-//                }
-//            }
-//
-//            override fun onFailure(call: Call<List<Person>>, t: Throwable){
-//                val message = t.message ?: "No connection to back-end"
-//                errorMessage.value = message
-//            }
-//        })
-//    }
+
 
     fun getPersons(userId: String? = null) {
         Log.d("PersonsRepository", "Fetching persons for user: $userId")
@@ -73,6 +54,29 @@ class PersonsRepository {
             }
         })
     }
+
+
+
+    //    fun getPersons(userId: String) {
+//        personsService.getPersons(userId).enqueue(object : Callback<List<Person>>{
+//            override fun onResponse(call: Call<List<Person>>, response: Response<List<Person>>){
+//                if (response.isSuccessful){
+//                    val personList: List<Person>? = response.body()
+//                    persons.value = personList ?: emptyList()
+//                    errorMessage.value = ""
+//                }
+//                else {
+//                    val message = response.code().toString() + " " + response.message()
+//                    errorMessage.value = message
+//                }
+//            }
+//
+//            override fun onFailure(call: Call<List<Person>>, t: Throwable){
+//                val message = t.message ?: "No connection to back-end"
+//                errorMessage.value = message
+//            }
+//        })
+//    }
 
 
 

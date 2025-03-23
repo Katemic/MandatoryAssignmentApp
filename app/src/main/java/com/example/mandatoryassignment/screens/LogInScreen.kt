@@ -8,12 +8,12 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material3.BottomAppBarDefaults
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Clear
+import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material3.Button
-import androidx.compose.material3.FloatingActionButton
-import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -24,12 +24,12 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.style.LineHeightStyle
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.google.firebase.auth.FirebaseUser
-import org.intellij.lang.annotations.JdkConstants.HorizontalAlignment
 
 
 @Composable
@@ -43,49 +43,75 @@ fun LogIn (modifier: Modifier = Modifier,
 
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
+    var showPassword by remember { mutableStateOf(false) }
+
 
     if (user != null) {
         navigateToNextScreen()
     }
 
-    Column(Modifier.padding(16.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-        Text(text = "Log In", fontSize = 35.sp)
 
-        OutlinedTextField(
-            value = email,
-            onValueChange = {email = it},
-            label = { Text("Username") },
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email)
-        )
+        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
 
-        OutlinedTextField(
-            value = password,
-            onValueChange = {password = it},
-            label = { Text("Password") }
-        )
+            Column(Modifier.padding(16.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+                Text(text = "Log In", fontSize = 35.sp)
 
-        Row(){
+                OutlinedTextField(
+                    value = email,
+                    onValueChange = { email = it },
+                    label = { Text("Username") },
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email)
+                )
 
-            Button(onClick = {signIn(email, password)}, modifier = Modifier.padding(5.dp)) {
-                Text("Log In")
+                OutlinedTextField(
+                    value = password,
+                    onValueChange = { password = it },
+                    label = { Text("Password") },
+                    visualTransformation =
+                        if (showPassword) VisualTransformation.None else PasswordVisualTransformation(),
+                    trailingIcon = {
+                        IconButton(onClick = { showPassword = !showPassword }) {
+                            if (showPassword) {
+                                Icon(Icons.Filled.Clear, contentDescription = "Hide password")
+                            } else {
+                                Icon(
+                                    Icons.Filled.Lock,
+                                    contentDescription = "Show password"
+                                )
+                            }
+                        }
+                    }
+
+                )
+                //TODO add password visibility toggle
+
+                Row() {
+
+                    Button(
+                        onClick = { signIn(email, password) },
+                        modifier = Modifier.padding(5.dp),
+                        enabled = email.isNotEmpty() && password.isNotEmpty()
+                    ) {
+                        Text("Log In")
+                    }
+
+                    Button(onClick = { register(email, password) },
+                        modifier = Modifier.padding(5.dp),
+                        enabled = email.isNotEmpty() && password.isNotEmpty()) {
+                        Text("Sign up")
+                    }
+
+
+                }
+
+                Row(){
+                    Text(message,
+                        color = androidx.compose.ui.graphics.Color.Red)
+                }
+
+
             }
-
-            Button(onClick = { }, modifier = Modifier.padding(5.dp)) {
-                Text("Sign up")
-            }
-
         }
-
-
-
-
-
-
-
-
-
-    }
-
 
 }
 

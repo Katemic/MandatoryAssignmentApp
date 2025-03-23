@@ -1,7 +1,12 @@
 package com.example.mandatoryassignment.screens
 
 import android.content.res.Configuration
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -11,6 +16,8 @@ import androidx.compose.material.icons.automirrored.filled.ExitToApp
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ExitToApp
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material3.Button
+import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FabPosition
 import androidx.compose.material3.FloatingActionButton
@@ -22,6 +29,11 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.tooling.preview.Preview
@@ -89,12 +101,63 @@ private fun PersonListPanel(
         LazyVerticalGrid(columns = GridCells.Fixed(columns)) {
 
             items(persons) { person ->
-                Text(person.name + " - " + person.userId)
+                FriendItem(person = person)
             }
 
         }
 
     }
+}
+
+@Composable
+private fun FriendItem(
+    person : Person,
+    modifier: Modifier = Modifier,
+    onPersonClick: (Person) -> Unit = {},
+    onPersonDelete: (Person) -> Unit = {}
+){
+
+    var expanded by remember { mutableStateOf(false) }
+
+    Card(modifier = modifier.padding(4.dp).fillMaxSize().clickable { expanded = !expanded }
+    ) {
+
+        Column(modifier = Modifier.padding(16.dp)) {
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    modifier = Modifier.padding(8.dp),
+                    text = person.name + " - " + person.birthDayOfMonth + "/" + person.birthMonth + "/" + person.birthYear
+                )
+
+            }
+            if (expanded) {
+
+                Text(
+                    text = "age: " + person.age,
+                )
+
+                Text(
+                    text = "remarks: " + person.remarks,
+                )
+
+                Row() {
+                    Button(onClick = { TODO() }) {
+                        Text("Edit")
+                    }
+                    Button(onClick = { TODO() }) {
+                        Text("Delete")
+                    }
+                }
+
+            }
+        }
+    }
+
 }
 
 

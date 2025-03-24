@@ -12,6 +12,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.mandatoryassignment.model.Person
 import com.example.mandatoryassignment.model.PersonsViewModel
 import com.example.mandatoryassignment.screens.CreateFriend
 import com.example.mandatoryassignment.screens.ListViewScreen
@@ -51,7 +52,11 @@ fun MainScreen(modifier: Modifier = Modifier) {
                 persons = persons,
                 user = authViewModel.user,
                 signOut = authViewModel::signOut,
-                navigateToLogIn = { navController.navigate(NavRoutes.LogInScreen.route) }
+                navigateToLogIn = { navController.navigate(NavRoutes.LogInScreen.route) },
+                navigateToCreateFriend = { navController.navigate(NavRoutes.CreateFriendScreen.route) },
+                deletePerson = { id -> personViewmodel.deletePerson(id)},
+                selectedPerson =
+                    {person -> navController.navigate(NavRoutes.UpdateFriendScreen.route + "/${person.id}")}
 
             )
         }
@@ -68,8 +73,17 @@ fun MainScreen(modifier: Modifier = Modifier) {
 
         composable(NavRoutes.CreateFriendScreen.route) {
             CreateFriend(
-                //user
+                user = authViewModel.user,
+                navigateBack = { navController.navigate(NavRoutes.ListViewScreen.route) },
+                addPerson = { person ->
+                    personViewmodel.createPerson(person)
+                }
+
             )
+        }
+
+        composable(NavRoutes.UpdateFriendScreen.route + "/{personId}"){
+
         }
 
 

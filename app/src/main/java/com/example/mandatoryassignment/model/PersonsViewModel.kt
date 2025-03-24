@@ -18,4 +18,12 @@ class PersonsViewModel : ViewModel() {
     }
 
 
+    fun createPerson(person: Person) {
+        repository.createPerson(person)
+    }
+
+    fun deletePerson(id: Int) {
+        repository.delete(id)
+    }
+
 }

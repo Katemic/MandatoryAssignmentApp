@@ -26,4 +26,12 @@ class PersonsViewModel : ViewModel() {
         repository.delete(id)
     }
 
+    fun getPersonById(id: Int, onResult: (Person?) -> Unit) {
+        return repository.getById(id, onResult)
+    }
+
+    fun updatePerson(id: Int, person: Person) {
+        repository.updatePerson(id, person)
+    }
+
 }

@@ -1,6 +1,7 @@
 package com.example.mandatoryassignment
 
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -9,14 +10,17 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.example.mandatoryassignment.model.Person
 import com.example.mandatoryassignment.model.PersonsViewModel
 import com.example.mandatoryassignment.screens.CreateFriend
 import com.example.mandatoryassignment.screens.ListViewScreen
 import com.example.mandatoryassignment.screens.LogIn
+import com.example.mandatoryassignment.screens.UpdateFriendScreen
 import com.example.mandatoryassignment.ui.theme.MandatoryAssignmentTheme
 
 
@@ -55,7 +59,7 @@ fun MainScreen(modifier: Modifier = Modifier) {
                 navigateToLogIn = { navController.navigate(NavRoutes.LogInScreen.route) },
                 navigateToCreateFriend = { navController.navigate(NavRoutes.CreateFriendScreen.route) },
                 deletePerson = { id -> personViewmodel.deletePerson(id)},
-                selectedPerson =
+                onPersonClick =
                     {person -> navController.navigate(NavRoutes.UpdateFriendScreen.route + "/${person.id}")}
 
             )
@@ -82,7 +86,18 @@ fun MainScreen(modifier: Modifier = Modifier) {
             )
         }
 
-        composable(NavRoutes.UpdateFriendScreen.route + "/{personId}"){
+        composable(NavRoutes.UpdateFriendScreen.route + "/{personId}",
+            arguments = listOf(navArgument("personId") { type = NavType.IntType })
+        ) { backStackEntry ->
+            val personId = backStackEntry.arguments?.getInt("personId")
+            var person: Person = persons.find { it.id == personId }!!
+            Log.d("PersonsRepository", "PersonId: $personId mainscreen")
+
+                UpdateFriendScreen(
+                    navigateBack = { navController.popBackStack() },
+                    updatePerson = { id, person -> personViewmodel.updatePerson(id, person) },
+                    person = person
+                )
 
         }
 

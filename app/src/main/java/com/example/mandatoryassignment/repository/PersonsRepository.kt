@@ -105,6 +105,53 @@ class PersonsRepository {
         })
     }
 
+    fun getById(id: Int, onResult: (Person?) -> Unit){
+        Log.d("PersonsRepository", "Fetching person with id: $id")
+        personsService.getPersonById(id).enqueue(object : Callback<Person> {
+            override fun onResponse(call: Call<Person>, response: Response<Person>) {
+                if (response.isSuccessful) {
+                    Log.d("PersonsRepository", "getById" + response.body())
+                    onResult(response.body())
+                    errorMessage.value = ""
+                }
+                else {
+                    val message = response.code().toString() + " " + response.message()
+                    errorMessage.value = message
+                    Log.d("PersonsRepository", "Failed to get person: $message")
+                }
+            }
+            override fun onFailure(call: Call<Person>, t: Throwable){
+                val message = t.message ?: "No connection to back-end"
+                errorMessage.value = message
+            }
+        })
+    }
+
+
+    fun updatePerson(id: Int, person: Person){
+        Log.d("PersonRepository", "Updating person with id: $id, person: $person")
+        personsService.updatePerson(id,person).enqueue(object : Callback<Person>{
+            override fun onResponse(call: Call<Person>, response: Response<Person>) {
+                if (response.isSuccessful){
+                    Log.d("PersonsRepository", "Updated" + response.body())
+                    getPersons(person.userId)
+                    errorMessage.value = ""
+                }
+                else {
+                    val message = response.code().toString() + " " + response.message()
+                    errorMessage.value = message
+                    Log.d("PersonsRepository", "Failed to update person: $message")
+                }
+            }
+            override fun onFailure(call: Call<Person>, t: Throwable){
+                val message = t.message ?: "No connection to back-end"
+                errorMessage.value = message
+            }
+
+        })
+    }
+
+
 
 
 }

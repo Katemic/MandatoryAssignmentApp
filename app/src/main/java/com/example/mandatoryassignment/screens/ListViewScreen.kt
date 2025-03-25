@@ -55,7 +55,7 @@ fun ListViewScreen(
     navigateToLogIn: () -> Unit = {},
     navigateToCreateFriend: () -> Unit = {},
     deletePerson: (id : Int) -> Unit = {},
-    selectedPerson: (Person) -> Unit = {}
+    onPersonClick: (Person) -> Unit = {}
 ){
 
     if (user == null) {
@@ -87,7 +87,8 @@ fun ListViewScreen(
         PersonListPanel(
             modifier = Modifier.padding(innerPadding),
             persons = persons,
-            deletePerson = deletePerson
+            deletePerson = deletePerson,
+            onPersonClick = onPersonClick
         )
 
     }
@@ -99,6 +100,7 @@ fun ListViewScreen(
 private fun PersonListPanel(
     modifier: Modifier = Modifier,
     persons : List<Person>,
+    onPersonClick: (Person) -> Unit = {},
     deletePerson: (id : Int) -> Unit = {}
 ){
 
@@ -110,7 +112,8 @@ private fun PersonListPanel(
 
             items(persons) { person ->
                 FriendItem(person = person,
-                    deletePerson = deletePerson)
+                    deletePerson = deletePerson,
+                    onPersonClick = onPersonClick)
             }
 
         }
@@ -156,7 +159,7 @@ private fun FriendItem(
                 )
 
                 Row() {
-                    Button(onClick = { TODO() }) {
+                    Button(onClick = { onPersonClick(person) }) {
                         Text("Edit")
                     }
                     Button(onClick = { showDialog = true }) {

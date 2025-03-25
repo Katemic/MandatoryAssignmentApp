@@ -83,7 +83,6 @@ fun LogIn (modifier: Modifier = Modifier,
                     }
 
                 )
-                //TODO add password visibility toggle
 
                 Row() {
 

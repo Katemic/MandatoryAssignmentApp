@@ -19,6 +19,7 @@ import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FabPosition
 import androidx.compose.material3.FloatingActionButton
@@ -55,7 +56,8 @@ fun ListViewScreen(
     navigateToLogIn: () -> Unit = {},
     navigateToCreateFriend: () -> Unit = {},
     deletePerson: (id : Int) -> Unit = {},
-    onPersonClick: (Person) -> Unit = {}
+    onPersonClick: (Person) -> Unit = {},
+    sortByName: (ascending: Boolean) -> Unit = {}
 ){
 
     if (user == null) {
@@ -88,7 +90,8 @@ fun ListViewScreen(
             modifier = Modifier.padding(innerPadding),
             persons = persons,
             deletePerson = deletePerson,
-            onPersonClick = onPersonClick
+            onPersonClick = onPersonClick,
+            sortByName = sortByName
         )
 
     }
@@ -99,25 +102,69 @@ fun ListViewScreen(
 @Composable
 private fun PersonListPanel(
     modifier: Modifier = Modifier,
-    persons : List<Person>,
+    persons: List<Person>,
     onPersonClick: (Person) -> Unit = {},
-    deletePerson: (id : Int) -> Unit = {}
-){
+    deletePerson: (id: Int) -> Unit = {},
+    sortByName: (ascending: Boolean) -> Unit = {}
+) {
 
     val orientation = LocalConfiguration.current.orientation
     val columns = if (orientation == Configuration.ORIENTATION_PORTRAIT) 1 else 2
-    Row(modifier = modifier.padding(8.dp)){
 
-        LazyVerticalGrid(columns = GridCells.Fixed(columns)) {
+    var sortNameAscending by remember { mutableStateOf(true) }
+    var expanded by remember { mutableStateOf(false) }
 
-            items(persons) { person ->
-                FriendItem(person = person,
-                    deletePerson = deletePerson,
-                    onPersonClick = onPersonClick)
+
+
+
+    Column(modifier = modifier.padding(3.dp)) {
+        Card(
+            modifier = Modifier
+                .padding(4.dp)
+                .fillMaxWidth()
+                .clickable { expanded = !expanded }
+                .padding(bottom = 7.dp)
+                .padding(top = 4.dp),
+            colors = CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.primary))
+        {
+
+
+
+            Text(text = "Sorting options",
+                modifier = Modifier.padding(13.dp))
+
+            if (expanded) {
+                Row {
+                    Button(onClick = { sortByName(sortNameAscending) }) {
+                        Text("Sort by name")
+                    }
+                    Button(onClick = { sortNameAscending = !sortNameAscending }) {
+                        Text(if (sortNameAscending) "A-Z" else "Z-A")
+                    }
+                }
             }
-
         }
 
+
+        Column {
+
+            Row {
+
+                LazyVerticalGrid(columns = GridCells.Fixed(columns)) {
+
+                    items(persons) { person ->
+                        FriendItem(
+                            person = person,
+                            deletePerson = deletePerson,
+                            onPersonClick = onPersonClick
+                        )
+                    }
+
+                }
+
+            }
+        }
     }
 }
 
@@ -132,7 +179,10 @@ private fun FriendItem(
     var expanded by rememberSaveable { mutableStateOf(false) }
     var showDialog by rememberSaveable { mutableStateOf(false) }
 
-    Card(modifier = modifier.padding(4.dp).fillMaxSize().clickable { expanded = !expanded }
+    Card(modifier = modifier
+        .padding(4.dp)
+        .fillMaxSize()
+        .clickable { expanded = !expanded }
     ) {
 
         Column(modifier = Modifier.padding(16.dp)) {
@@ -212,6 +262,8 @@ private fun DeleteDialog(
         modifier = modifier
     )
 }
+
+
 
 
 @Preview

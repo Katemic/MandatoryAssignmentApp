@@ -152,6 +152,15 @@ class PersonsRepository {
     }
 
 
+    fun sortByName(ascending: Boolean){
+        if (ascending){
+            persons.value = persons.value.sortedBy { it.name}
+        }
+        else {
+            persons.value = persons.value.sortedByDescending { it.name}
+        }
+    }
+
 
 
 }

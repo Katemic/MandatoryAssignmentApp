@@ -7,6 +7,7 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -45,9 +46,14 @@ fun MainScreen(modifier: Modifier = Modifier) {
     val errorMessage = personViewmodel.errorMessage.value
     val authViewModel: AuthenticationViewModel = viewModel()
     val user = authViewModel.user
-    if(user != null){
-        personViewmodel.getPersons(user.email!!)
+    LaunchedEffect(user) {
+        user?.let {
+            personViewmodel.getPersons(it.email!!)
+        }
     }
+//    if(user != null){
+//        personViewmodel.getPersons(user.email!!)
+//    }
 
     NavHost(navController = navController, startDestination = NavRoutes.LogInScreen.route) {
 
@@ -60,7 +66,8 @@ fun MainScreen(modifier: Modifier = Modifier) {
                 navigateToCreateFriend = { navController.navigate(NavRoutes.CreateFriendScreen.route) },
                 deletePerson = { id -> personViewmodel.deletePerson(id)},
                 onPersonClick =
-                    {person -> navController.navigate(NavRoutes.UpdateFriendScreen.route + "/${person.id}")}
+                    {person -> navController.navigate(NavRoutes.UpdateFriendScreen.route + "/${person.id}")},
+                sortByName = {ascending -> personViewmodel.sortByName(ascending)}
 
             )
         }

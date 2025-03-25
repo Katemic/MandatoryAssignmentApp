@@ -34,4 +34,8 @@ class PersonsViewModel : ViewModel() {
         repository.updatePerson(id, person)
     }
 
+    fun sortByName(ascending: Boolean) {
+        repository.sortByName(ascending)
+    }
+
 }

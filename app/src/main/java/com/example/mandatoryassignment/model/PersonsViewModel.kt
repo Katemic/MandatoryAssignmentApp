@@ -11,6 +11,7 @@ class PersonsViewModel : ViewModel() {
 
     val persons: State<List<Person>> = repository.persons
     val errorMessage: State<String> = repository.errorMessage
+    val isLoadingPersons: State<Boolean> = repository.isLoadingPersons
 
 
     fun getPersons(userId: String) {
@@ -36,6 +37,18 @@ class PersonsViewModel : ViewModel() {
 
     fun sortByName(ascending: Boolean) {
         repository.sortByName(ascending)
+    }
+
+    fun sortByAge(ascending: Boolean) {
+        repository.sortByAge(ascending)
+    }
+
+    fun sortByBirthday(ascending: Boolean) {
+        repository.sortByBirthday(ascending)
+    }
+
+    fun filter(criteria: String) {
+        repository.filter(criteria)
     }
 
 }

@@ -17,6 +17,8 @@ class PersonsRepository {
     private val personsService : PersonsService
     val persons: MutableState<List<Person>> = mutableStateOf(listOf())
     val errorMessage = mutableStateOf("")
+    private val personsOriginal: MutableState<List<Person>> = mutableStateOf(listOf())
+    val isLoadingPersons = mutableStateOf(false)
 
 
     init {
@@ -33,13 +35,17 @@ class PersonsRepository {
 
 
     fun getPersons(userId: String? = null) {
+        isLoadingPersons.value = true
         Log.d("PersonsRepository", "Fetching persons for user: $userId")
         personsService.getPersons(userId).enqueue(object : Callback<List<Person>>{
             override fun onResponse(call: Call<List<Person>>, response: Response<List<Person>>){
+                isLoadingPersons.value = false
                 if (response.isSuccessful){
                     Log.d("PersonsRepository", "Response successful: ${call.request().url()}")
                     val personList: List<Person>? = response.body()
-                    persons.value = personList ?: emptyList()
+                    persons.value = personList?.sortedBy { it.birthDayOfMonth }?.sortedBy { it.birthMonth }?: emptyList()
+                    personsOriginal.value = personList?.sortedBy { it.birthDayOfMonth }?.sortedBy { it.birthMonth }?: emptyList()
+                    Log.d("PersonsRepository", "Persons: ${persons.value}")
                     errorMessage.value = ""
                 }
                 else {
@@ -161,6 +167,41 @@ class PersonsRepository {
         }
     }
 
+    fun sortByAge(ascending: Boolean){
+        if (ascending){
+            persons.value = persons.value.sortedBy { it.age}
+        }
+        else {
+            persons.value = persons.value.sortedByDescending { it.age}
+        }
+    }
+
+    fun sortByBirthday(ascending: Boolean){
+        if (ascending){
+            persons.value = persons.value.sortedBy{ it.birthDayOfMonth }.sortedBy{ it.birthMonth }
+            Log.d("PersonsRepository", "Sorted by birthday ASC: ${persons.value}")
+        }
+        else{
+            persons.value = persons.value.sortedByDescending{ it.birthDayOfMonth }.sortedByDescending{ it.birthMonth }
+            Log.d("PersonsRepository", "Sorted by birthday DESC: ${persons.value}")
+        }
+    }
+
+    fun filter(criteria: String){
+
+        val trimmedCriteria = criteria.trim()
+        val criteriaAsInt = trimmedCriteria.toIntOrNull()
+
+        persons.value =
+                if (criteriaAsInt != null) {
+                    personsOriginal.value.filter { it.age == criteriaAsInt }
+                }
+                else {
+                    personsOriginal.value.filter { it.name.contains(trimmedCriteria, ignoreCase = true) }
+                }
+
+
+    }
 
 
 }

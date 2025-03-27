@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
@@ -26,9 +27,12 @@ import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
@@ -45,6 +49,9 @@ import androidx.compose.ui.unit.dp
 import com.example.mandatoryassignment.NavRoutes
 import com.example.mandatoryassignment.model.Person
 import com.google.firebase.auth.FirebaseUser
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
+import androidx.compose.runtime.LaunchedEffect
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -57,12 +64,20 @@ fun ListViewScreen(
     navigateToCreateFriend: () -> Unit = {},
     deletePerson: (id : Int) -> Unit = {},
     onPersonClick: (Person) -> Unit = {},
-    sortByName: (ascending: Boolean) -> Unit = {}
+    sortByName: (ascending: Boolean) -> Unit = {},
+    sortByAge: (ascending: Boolean) -> Unit = {},
+    sortByBirthday: (ascending: Boolean) -> Unit = {},
+    filter: (criteria: String) -> Unit = {},
+    personReload: () -> Unit = {},
+    isLoading: Boolean
 ){
 
-    if (user == null) {
-        navigateToLogIn()
+    LaunchedEffect(user){
+        if (user == null) {
+            navigateToLogIn()
+        }
     }
+
 
     Scaffold(modifier = modifier,
         topBar = {
@@ -91,7 +106,13 @@ fun ListViewScreen(
             persons = persons,
             deletePerson = deletePerson,
             onPersonClick = onPersonClick,
-            sortByName = sortByName
+            sortByName = sortByName,
+            sortByAge = sortByAge,
+            sortByBirthday = sortByBirthday,
+            filter = filter,
+            personReload = personReload,
+            isLoading = isLoading
+
         )
 
     }
@@ -99,20 +120,29 @@ fun ListViewScreen(
 
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun PersonListPanel(
     modifier: Modifier = Modifier,
     persons: List<Person>,
     onPersonClick: (Person) -> Unit = {},
     deletePerson: (id: Int) -> Unit = {},
-    sortByName: (ascending: Boolean) -> Unit = {}
+    sortByName: (ascending: Boolean) -> Unit = {},
+    sortByAge: (ascending: Boolean) -> Unit = {},
+    sortByBirthday: (ascending: Boolean) -> Unit = {},
+    filter: (criteria: String) -> Unit = {},
+    personReload: () -> Unit = {},
+    isLoading: Boolean
 ) {
 
     val orientation = LocalConfiguration.current.orientation
     val columns = if (orientation == Configuration.ORIENTATION_PORTRAIT) 1 else 2
 
     var sortNameAscending by remember { mutableStateOf(true) }
-    var expanded by remember { mutableStateOf(false) }
+    var sortAgeAscending by remember { mutableStateOf(true) }
+    var sortBirthdayAscending by remember { mutableStateOf(true) }
+    var expanded by remember { mutableStateOf(false) } //husk den skal være false
+    var filterCriteria by remember { mutableStateOf("") }
 
 
 
@@ -126,45 +156,98 @@ private fun PersonListPanel(
                 .padding(bottom = 7.dp)
                 .padding(top = 4.dp),
             colors = CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.primary))
+                containerColor = MaterialTheme.colorScheme.primary
+            ))
         {
 
 
+            Text(
+                text = "Sorting options",
+                modifier = Modifier.padding(13.dp)
+            )
 
-            Text(text = "Sorting options",
-                modifier = Modifier.padding(13.dp))
+
 
             if (expanded) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.padding(start = 12.dp)
+                ) {
+
+                    Text("Sort by: ")
+
+                    Button(onClick = {
+                        sortByName(sortNameAscending)
+                        sortNameAscending = !sortNameAscending
+                    }) {
+                        Text("Name")
+                    }
+
+                    Button(onClick = {
+                        sortByAge(sortAgeAscending)
+                        sortAgeAscending = !sortAgeAscending
+                    }) {
+                        Text("Age")
+                    }
+                    Button(onClick = {
+                        sortByBirthday(sortBirthdayAscending)
+                        sortBirthdayAscending = !sortBirthdayAscending
+                    }) {
+                        Text("Birthday")
+                    }
+                }
+                Row(
+                    modifier = Modifier.padding(7.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                )
+                {
+                    TextField(
+                        value = filterCriteria,
+                        onValueChange = { filterCriteria = it },
+                        label = { Text("Filter by name or age") },
+                        modifier = Modifier.width(240.dp).padding(8.dp)
+                    )
+
+                    Button(
+                        onClick = { filter(filterCriteria) },
+                        enabled = filterCriteria.isNotEmpty(),
+                        modifier = Modifier.padding(start = 3.dp)
+                    ) {
+                        Text("Filter")
+                    }
+
+                }
+            }
+        }
+
+
+        PullToRefreshBox(
+            isRefreshing = isLoading,
+            onRefresh = { personReload() }
+
+        ) {
+
+
+            Column {
+
                 Row {
-                    Button(onClick = { sortByName(sortNameAscending) }) {
-                        Text("Sort by name")
+
+                    LazyVerticalGrid(columns = GridCells.Fixed(columns)) {
+
+                        items(persons) { person ->
+                            FriendItem(
+                                person = person,
+                                deletePerson = deletePerson,
+                                onPersonClick = onPersonClick
+                            )
+                        }
+
                     }
-                    Button(onClick = { sortNameAscending = !sortNameAscending }) {
-                        Text(if (sortNameAscending) "A-Z" else "Z-A")
-                    }
+
                 }
             }
         }
 
-
-        Column {
-
-            Row {
-
-                LazyVerticalGrid(columns = GridCells.Fixed(columns)) {
-
-                    items(persons) { person ->
-                        FriendItem(
-                            person = person,
-                            deletePerson = deletePerson,
-                            onPersonClick = onPersonClick
-                        )
-                    }
-
-                }
-
-            }
-        }
     }
 }
 
@@ -269,6 +352,7 @@ private fun DeleteDialog(
 @Preview
 @Composable
 fun ListPreview() {
-    ListViewScreen(listOf(Person("email", "name", 1999, 1, 1, "remarks", "pictureUrl")))
+    ListViewScreen(listOf(Person("email", "name", 1999, 1, 1, "remarks", "pictureUrl")),
+        isLoading = false)
 
 }

@@ -67,7 +67,13 @@ fun MainScreen(modifier: Modifier = Modifier) {
                 deletePerson = { id -> personViewmodel.deletePerson(id)},
                 onPersonClick =
                     {person -> navController.navigate(NavRoutes.UpdateFriendScreen.route + "/${person.id}")},
-                sortByName = {ascending -> personViewmodel.sortByName(ascending)}
+                sortByName = {ascending -> personViewmodel.sortByName(ascending)},
+                sortByAge = {ascending -> personViewmodel.sortByAge(ascending)},
+                sortByBirthday = {ascending -> personViewmodel.sortByBirthday(ascending)},
+                filter = {criteria -> personViewmodel.filter(criteria)},
+                personReload = {personViewmodel.getPersons(user!!.email!!)},
+                isLoading = personViewmodel.isLoadingPersons.value,
+
 
             )
         }

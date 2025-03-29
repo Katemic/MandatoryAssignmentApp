@@ -84,6 +84,10 @@ private fun UpdatePerson(
     var year by rememberSaveable { mutableIntStateOf(person.birthYear)}
     var remark by rememberSaveable { mutableStateOf(person.remarks)}
 
+    var nameIsError by rememberSaveable { mutableStateOf(false) }
+    var dateIsError by rememberSaveable { mutableStateOf(false) }
+    var remarkIsError by rememberSaveable { mutableStateOf(false) }
+
 
     val context = LocalContext.current
     val calendar = Calendar.getInstance()
@@ -107,7 +111,8 @@ private fun UpdatePerson(
         OutlinedTextField(
             value = name,
             onValueChange = { name = it },
-            label = { Text("Name") }
+            label = { Text("Name") },
+            isError = nameIsError,
         )
 
 
@@ -124,23 +129,43 @@ private fun UpdatePerson(
                     Icon(Icons.Filled.DateRange, contentDescription = "Select Date")
                 }
             },
-            modifier = Modifier.padding(bottom = 16.dp)
+            modifier = Modifier.padding(bottom = 16.dp),
+            isError = dateIsError
         )
 
         OutlinedTextField(
             value = if (remark.isNullOrEmpty()) "" else remark,
             onValueChange = { remark = it },
-            label = { Text("Remarks") }
+            label = { Text("Remarks") },
+            isError = remarkIsError
         )
 
 
 
         Row() {
             Button(onClick = {
+                nameIsError = name.isEmpty()
+                remarkIsError = remark.isEmpty()
+                dateIsError = day == 0 || month == 0 || year == 0
 
-                updatePerson(person.id, Person(person.id, person.userId, name, year, month, day, remark, person.pictureUrl, person.age))
-                navigateBack()
-            }) {
+                if (!nameIsError && !dateIsError && !remarkIsError) {
+                    updatePerson(
+                        person.id,
+                        Person(
+                            person.id,
+                            person.userId,
+                            name,
+                            year,
+                            month,
+                            day,
+                            remark,
+                            person.pictureUrl,
+                            person.age
+                        )
+                    )
+                    navigateBack()
+                }
+            }, modifier = Modifier.padding(end = 8.dp)) {
                 Text("Update")
             }
 

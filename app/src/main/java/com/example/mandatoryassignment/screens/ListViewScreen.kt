@@ -292,7 +292,8 @@ private fun FriendItem(
                 )
 
                 Row() {
-                    Button(onClick = { onPersonClick(person) }) {
+                    Button(onClick = { onPersonClick(person) },
+                        modifier = Modifier.padding(end = 8.dp)) {
                         Text("Edit")
                     }
                     Button(onClick = { showDialog = true }) {

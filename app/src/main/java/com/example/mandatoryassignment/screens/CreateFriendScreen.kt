@@ -90,6 +90,11 @@ private fun CreateFriendPanel(
     var year by rememberSaveable { mutableStateOf("") }
     var remark by rememberSaveable { mutableStateOf("") }
 
+    var nameIsError by rememberSaveable { mutableStateOf(false) }
+    var dateIsError by rememberSaveable { mutableStateOf(false) }
+    var remarkIsError by rememberSaveable { mutableStateOf(false) }
+
+
 
     val calendar = Calendar.getInstance()
     val datePickerDialog = DatePickerDialog(
@@ -118,7 +123,8 @@ private fun CreateFriendPanel(
             value = name,
             onValueChange = { name = it},
             label = { Text("Name") },
-            modifier = Modifier.padding(bottom = 16.dp)
+            modifier = Modifier.padding(bottom = 16.dp),
+            isError = nameIsError
         )
 
         OutlinedTextField(
@@ -134,26 +140,45 @@ private fun CreateFriendPanel(
                     Icon(Icons.Filled.DateRange, contentDescription = "Select Date")
                 }
             },
-            modifier = Modifier.padding(bottom = 16.dp)
+            modifier = Modifier.padding(bottom = 16.dp),
+            isError = dateIsError
         )
 
         OutlinedTextField(
             value = remark,
             onValueChange = { remark = it},
             label = { Text("Remarks") },
-            modifier = Modifier.padding(bottom = 16.dp)
+            modifier = Modifier.padding(bottom = 16.dp),
+            isError = remarkIsError
         )
 
 
         Row() {
 
             Button(onClick = {
-                val newPerson = Person(0, user.email!!, name, year.toInt(), month.toInt(), day.toInt(), remark, "",0)
-                Log.d("PersonsRepository", "Adding person: $newPerson")
-                addPerson(newPerson)
-                navigateBack()
 
-            })
+                nameIsError = name.isEmpty()
+                dateIsError = day.isEmpty() || month.isEmpty() || year.isEmpty()
+                remarkIsError = remark.isEmpty()
+
+                if (!nameIsError && !dateIsError && !remarkIsError) {
+                    val newPerson = Person(
+                        0,
+                        user.email!!,
+                        name,
+                        year.toInt(),
+                        month.toInt(),
+                        day.toInt(),
+                        remark,
+                        "",
+                        0
+                    )
+                    Log.d("PersonsRepository", "Adding person: $newPerson")
+                    addPerson(newPerson)
+                    navigateBack()
+                }
+
+            }, modifier = Modifier.padding(end = 8.dp))
             {
                 Text("Add")
             }
@@ -175,5 +200,6 @@ private fun CreateFriendPanel(
 @Preview
 @Composable
 fun CreateFriendPreview() {
-    CreateFriend()
+    CreateFriend(
+    )
 }

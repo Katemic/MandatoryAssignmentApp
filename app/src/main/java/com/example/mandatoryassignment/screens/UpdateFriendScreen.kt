@@ -5,7 +5,10 @@ import android.widget.DatePicker
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material3.Button
@@ -32,7 +35,9 @@ import androidx.compose.ui.Modifier
 import com.example.mandatoryassignment.model.Person
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.LineHeightStyle
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import java.util.Calendar
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -106,7 +111,14 @@ private fun UpdatePerson(
 
 
 
-    Column(modifier = modifier) {
+    Column(modifier = modifier.padding(10.dp).verticalScroll(rememberScrollState())) {
+
+        Text(
+            text = "Edit friend",
+            modifier = Modifier.fillMaxWidth().padding(4.dp),
+            textAlign = TextAlign.Center,
+            fontSize = 25.sp
+        )
 
         OutlinedTextField(
             value = name,
@@ -137,7 +149,8 @@ private fun UpdatePerson(
             value = if (remark.isNullOrEmpty()) "" else remark,
             onValueChange = { remark = it },
             label = { Text("Remarks") },
-            isError = remarkIsError
+            isError = remarkIsError,
+            modifier = Modifier.padding(bottom = 16.dp)
         )
 
 
